@@ -210,3 +210,7 @@ input, button, select, textarea { font-family: inherit; }
   .btn-primary, .btn-secondary, .btn-danger { height: 46px; font-size: 14px; }
   .screen-body { padding: 14px; }
 }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
