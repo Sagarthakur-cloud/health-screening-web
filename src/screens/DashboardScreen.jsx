@@ -1,7 +1,6 @@
-// src/screens/DashboardScreen.jsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, Users, AlertTriangle, Cloud, CheckCircle2 } from 'lucide-react';
+import { Eye, Users, TrendingUp, AlertTriangle, Cloud, CheckCircle2 } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import { getAllResults } from '../services/dbService';
 
@@ -23,15 +22,16 @@ export default function DashboardScreen() {
     });
   }, []);
 
-  const Stat = ({ value, label, color }) => (
+  const Stat = ({ value, label, Icon, color }) => (
     <div className="stat-card" style={{ flex: 1 }}>
+      <Icon size={18} color={color} strokeWidth={2.2} style={{ marginBottom: 6 }} />
       <div style={{ fontSize: 22, fontWeight: 700, color }}>{value}</div>
-      <div style={{ fontSize: 10, color: '#6B7280', marginTop: 2 }}>{label}</div>
+      <div style={{ fontSize: 10, color: '#6B7280', marginTop: 2, fontWeight: 500 }}>{label}</div>
     </div>
   );
 
   return (
-    <div style={{ paddingBottom: 90, background: '#F6F8FC', minHeight: '100vh' }}>
+    <div style={{ paddingBottom: 100, background: '#F6F8FC', minHeight: '100vh' }}>
       {/* Header */}
       <div style={{ background: 'white', padding: '20px 20px 16px', borderBottom: '1px solid #F3F4F6' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -39,23 +39,25 @@ export default function DashboardScreen() {
             <h1 style={{ fontSize: 18, fontWeight: 700 }}>Hello, Health Worker</h1>
             <p style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>ID: {workerId}</p>
           </div>
-          <div style={{ position: 'relative' }}>
-            <div style={{ width: 40, height: 40, borderRadius: 12, background: '#0F52BA', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 16, fontWeight: 600 }}>
-              {workerId.charAt(0)}
-            </div>
+          <div style={{
+            width: 40, height: 40, borderRadius: 12, background: '#0F52BA',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: 'white', fontSize: 16, fontWeight: 600,
+          }}>
+            {workerId.charAt(0).toUpperCase()}
           </div>
         </div>
       </div>
 
       <div style={{ padding: 20 }}>
-        {/* Stats Grid */}
+        {/* Stats */}
         <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
-          <Stat value={stats.total} label="Total Screenings" color="#0F52BA" />
-          <Stat value={stats.high} label="High Risk Cases" color="#EF4444" />
+          <Stat value={stats.total} label="Total Screenings" Icon={TrendingUp} color="#0F52BA" />
+          <Stat value={stats.high} label="High Risk Cases" Icon={AlertTriangle} color="#EF4444" />
         </div>
         <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
-          <Stat value={stats.pending} label="Pending Sync" color="#F59E0B" />
-          <Stat value={stats.synced} label="Synced Today" color="#10B981" />
+          <Stat value={stats.pending} label="Pending Sync" Icon={Cloud} color="#F59E0B" />
+          <Stat value={stats.synced} label="Synced Today" Icon={CheckCircle2} color="#10B981" />
         </div>
 
         <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Quick Actions</h3>
@@ -65,8 +67,8 @@ export default function DashboardScreen() {
             style={{
               flex: 1, padding: '24px 16px', background: '#0F52BA',
               color: 'white', borderRadius: 16, border: 'none',
-              display: 'flex', flexDirection: 'column',
-              alignItems: 'center', gap: 10, cursor: 'pointer',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+              cursor: 'pointer', fontFamily: 'inherit',
             }}
           >
             <Eye size={28} strokeWidth={1.8} />
@@ -78,8 +80,8 @@ export default function DashboardScreen() {
             style={{
               flex: 1, padding: '24px 16px', background: '#10B981',
               color: 'white', borderRadius: 16, border: 'none',
-              display: 'flex', flexDirection: 'column',
-              alignItems: 'center', gap: 10, cursor: 'pointer',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+              cursor: 'pointer', fontFamily: 'inherit',
             }}
           >
             <Users size={28} strokeWidth={1.8} />
@@ -88,7 +90,6 @@ export default function DashboardScreen() {
           </button>
         </div>
       </div>
-
       <BottomNav />
     </div>
   );

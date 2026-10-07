@@ -12,7 +12,6 @@ import HistoryScreen from './screens/HistoryScreen';
 import OfflineSyncScreen from './screens/OfflineSyncScreen';
 import ProfileScreen from './screens/ProfileScreen';
 
-
 export default function App() {
   return (
     <BrowserRouter>

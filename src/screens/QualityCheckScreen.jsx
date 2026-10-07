@@ -1,7 +1,6 @@
-// src/screens/QualityCheckScreen.jsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, CheckCircle2, AlertTriangle } from 'lucide-react';
 import ScreenHeader from '../components/ScreenHeader';
 import { checkQuality } from '../services/qualityService';
 
@@ -16,7 +15,15 @@ export default function QualityCheckScreen() {
     if (i) checkQuality(i).then(setQ);
   }, []);
 
-  if (!q) return <div style={{ padding: 40, textAlign: 'center' }}>Checking quality...</div>;
+  if (!q) return (
+    <div style={{ background: '#F6F8FC', minHeight: '100vh' }}>
+      <ScreenHeader title="Image Quality Check" />
+      <div style={{ padding: 40, textAlign: 'center', color: '#6B7280', fontSize: 13 }}>
+        Analyzing quality...
+      </div>
+    </div>
+  );
+
   const good = q.status === 'good';
 
   return (
@@ -31,13 +38,20 @@ export default function QualityCheckScreen() {
           border: `1.5px solid ${good ? '#10B981' : '#EF4444'}`,
           marginBottom: 16,
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: good ? '#065F46' : '#991B1B' }}>
-              {good ? '✓ Quality Good' : '✗ Poor Quality'}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {good ? <CheckCircle2 size={20} color="#065F46" /> : <AlertTriangle size={20} color="#991B1B" />}
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: good ? '#065F46' : '#991B1B', flex: 1 }}>
+              {good ? 'Good Quality' : 'Poor Quality'}
             </h3>
-            <span style={{ fontSize: 12, color: good ? '#065F46' : '#991B1B' }}>{q.score}/100</span>
+            <span style={{ fontSize: 12, color: good ? '#065F46' : '#991B1B', fontWeight: 600 }}>
+              {q.score}/100
+            </span>
           </div>
-          {!good && <p style={{ fontSize: 12, marginTop: 8, color: '#991B1B' }}>{q.reason}</p>}
+          {!good && (
+            <p style={{ fontSize: 12, marginTop: 10, color: '#991B1B' }}>
+              {q.reason}
+            </p>
+          )}
         </div>
 
         <button className="btn-secondary" onClick={() => navigate('/camera')} style={{ marginBottom: 10 }}>

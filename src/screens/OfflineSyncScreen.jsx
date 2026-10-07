@@ -1,6 +1,5 @@
-// src/screens/OfflineSyncScreen.jsx
 import { useEffect, useState } from 'react';
-import { RefreshCw, CheckCircle2, Cloud } from 'lucide-react';
+import { RefreshCw, CheckCircle2, Cloud, CloudOff } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import ScreenHeader from '../components/ScreenHeader';
 import { getAllResults, getPendingSync } from '../services/dbService';
@@ -23,7 +22,10 @@ export default function OfflineSyncScreen() {
     const off = () => setOnline(false);
     window.addEventListener('online', on);
     window.addEventListener('offline', off);
-    return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off); };
+    return () => {
+      window.removeEventListener('online', on);
+      window.removeEventListener('offline', off);
+    };
   }, []);
 
   const doSync = async () => {
@@ -35,30 +37,36 @@ export default function OfflineSyncScreen() {
   };
 
   return (
-    <div style={{ paddingBottom: 90, background: '#F6F8FC', minHeight: '100vh' }}>
+    <div style={{ paddingBottom: 100, background: '#F6F8FC', minHeight: '100vh' }}>
       <ScreenHeader title="Offline Sync" showBack={false} />
       <div style={{ padding: 20 }}>
         <div style={{
-          padding: 16, borderRadius: 14, textAlign: 'center', marginBottom: 16,
+          padding: 20, borderRadius: 14, textAlign: 'center', marginBottom: 16,
           background: online ? '#D1FAE5' : '#FEF3C7',
         }}>
-          <div style={{ fontSize: 32, marginBottom: 6 }}>{online ? '☁️' : '📴'}</div>
-          <h3 style={{ fontSize: 14, fontWeight: 700 }}>{online ? 'Online Mode' : 'Offline Mode'}</h3>
-          <p style={{ fontSize: 12, color: '#6B7280', marginTop: 4 }}>
-            {online ? 'You are online. Data will sync automatically when available.' : 'You are currently offline. Data will sync automatically when a connection is available.'}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
+            {online ? <Cloud size={32} color="#065F46" /> : <CloudOff size={32} color="#92400E" />}
+          </div>
+          <h3 style={{ fontSize: 14, fontWeight: 700, color: online ? '#065F46' : '#92400E' }}>
+            {online ? 'Online Mode' : 'Offline Mode'}
+          </h3>
+          <p style={{ fontSize: 12, color: online ? '#065F46' : '#92400E', marginTop: 6, opacity: 0.85 }}>
+            {online
+              ? 'You are online. Data will sync automatically when available.'
+              : 'No internet connection. Data will sync automatically when a connection is available.'}
           </p>
         </div>
 
         <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
           <div className="stat-card" style={{ flex: 1 }}>
-            <Cloud size={20} color="#F59E0B" style={{ margin: '0 auto 6px' }} />
+            <Cloud size={18} color="#F59E0B" style={{ marginBottom: 6 }} />
             <div style={{ fontSize: 22, fontWeight: 700, color: '#F59E0B' }}>{pending}</div>
-            <div style={{ fontSize: 10, color: '#6B7280' }}>Pending Sync</div>
+            <div style={{ fontSize: 10, color: '#6B7280', marginTop: 2, fontWeight: 500 }}>Pending Sync</div>
           </div>
           <div className="stat-card" style={{ flex: 1 }}>
-            <CheckCircle2 size={20} color="#10B981" style={{ margin: '0 auto 6px' }} />
+            <CheckCircle2 size={18} color="#10B981" style={{ marginBottom: 6 }} />
             <div style={{ fontSize: 22, fontWeight: 700, color: '#10B981' }}>{synced}</div>
-            <div style={{ fontSize: 10, color: '#6B7280' }}>Synced</div>
+            <div style={{ fontSize: 10, color: '#6B7280', marginTop: 2, fontWeight: 500 }}>Synced</div>
           </div>
         </div>
 
