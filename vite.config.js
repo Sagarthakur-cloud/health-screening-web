@@ -23,9 +23,27 @@ export default defineConfig({
         ],
       },
       workbox: {
-        maximumFileSizeToCacheInBytes: 30 * 1024 * 1024,
-        globPatterns: ['**/*.{js,css,html,tflite,wasm,png,svg}'],
+  maximumFileSizeToCacheInBytes: 30 * 1024 * 1024,
+  globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+  runtimeCaching: [
+    {
+      urlPattern: /\.tflite$/,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'ai-models',
+        expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
       },
+    },
+    {
+      urlPattern: /\.wasm$/,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'wasm-runtime',
+        expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+      },
+    },
+  ],
+}
     }),
   ],
 });
