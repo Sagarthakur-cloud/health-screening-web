@@ -1,50 +1,12 @@
-import { openDB, deleteDB } from 'idb';
+import { openDB } from 'idb';
 
 const DB_NAME = 'health-screening';
 const DB_VERSION = 2;
 
 let dbPromise = null;
 
-/**
- * Init DB with auto-recovery:
- * - If existing DB version is older than DB_VERSION, delete it and recreate.
- * - If stores are missing, delete and recreate.
- */
-async function initDB() {
-  try {
-    // Check existing DB
-    const existing = await openDB(DB_NAME);
-    const existingVersion = existing.version;
-    const existingStores = Array.from(existing.objectStoreNames);
-
-    const requiredStores = ['users', 'patients', 'results', 'syncQueue'];
-    const missingStores = requiredStores.filter(
-      (s) => !existingStores.includes(s)
-    );
-
-    const needsRecreate =
-      existingVersion < DB_VERSION || missingStores.length > 0;
-
-    existing.close();
-
-    if (needsRecreate) {
-      console.warn(
-        `[DB] Recreating DB. Version: ${existingVersion} → ${DB_VERSION}, Missing stores: ${missingStores.join(', ') || 'none'}`
-      );
-      await deleteDB(DB_NAME, {
-        blocked() {
-          console.warn('[DB] Delete blocked. Close other tabs of this app.');
-        },
-      });
-      console.log('[DB] Old DB deleted. Creating fresh DB...');
-    }
-  } catch (e) {
-    // DB doesn't exist yet, fine
-    console.log('[DB] No existing DB found. Creating fresh DB...');
-  }
-
-  // Create / open fresh DB
-  const db = await openDB(DB_NAME, DB_VERSION, {
+function createDB() {
+  return openDB(DB_NAME, DB_VERSION, {
     upgrade(db, oldVersion, newVersion) {
       console.log(`[DB] Upgrade: v${oldVersion} → v${newVersion}`);
 
@@ -75,7 +37,7 @@ async function initDB() {
       console.warn('[DB] Upgrade blocked. Close other tabs.');
     },
     blocking() {
-      console.warn('[DB] This tab is blocking upgrade. Closing connection...');
+      console.warn('[DB] This tab is blocking a newer version. Reloading...');
       if (dbPromise) {
         dbPromise.then((d) => d.close()).catch(() => {});
         dbPromise = null;
@@ -86,20 +48,11 @@ async function initDB() {
       dbPromise = null;
     },
   });
-
-  console.log(
-    '[DB] Ready. Version:',
-    db.version,
-    'Stores:',
-    Array.from(db.objectStoreNames)
-  );
-
-  return db;
 }
 
 export function getDB() {
   if (!dbPromise) {
-    dbPromise = initDB();
+    dbPromise = createDB();
   }
   return dbPromise;
 }
@@ -190,19 +143,4 @@ export async function clearSyncQueue() {
 export async function listStores() {
   const db = await getDB();
   return Array.from(db.objectStoreNames);
-}
-
-export async function resetDB() {
-  if (dbPromise) {
-    const db = await dbPromise;
-    db.close();
-  }
-  dbPromise = null;
-  await deleteDB(DB_NAME, {
-    blocked() {
-      console.warn('[DB] Reset blocked. Close other tabs.');
-    },
-  });
-  console.log('[DB] Deleted. Reload page to recreate.');
-  return true;
 }
