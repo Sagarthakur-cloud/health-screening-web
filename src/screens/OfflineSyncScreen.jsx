@@ -11,62 +11,60 @@ export default function OfflineSyncScreen() {
   const [online, setOnline] = useState(navigator.onLine);
   const [syncing, setSyncing] = useState(false);
 
+  const refresh = async () => {
+    const p = await getPendingSync();
+    const all = await getAllResults();
+    setPending(p.length);
+    setSynced(all.filter(r => r.syncStatus === 'synced').length);
+  };
+
   useEffect(() => {
-    (async () => {
-      const p = await getPendingSync();
-      const all = await getAllResults();
-      setPending(p.length);
-      setSynced(all.filter(r => r.syncStatus === 'synced').length);
-    })();
+    refresh();
     const on = () => setOnline(true);
     const off = () => setOnline(false);
     window.addEventListener('online', on);
     window.addEventListener('offline', off);
-    return () => {
-      window.removeEventListener('online', on);
-      window.removeEventListener('offline', off);
-    };
+    return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off); };
   }, []);
 
   const doSync = async () => {
     setSyncing(true);
-    const r = await syncPending();
+    try {
+      const r = await syncPending();
+      await refresh();
+      alert(`Synced: ${r.synced}, Failed: ${r.failed}`);
+    } catch (e) { alert('Sync failed: ' + e.message); }
     setSyncing(false);
-    setPending(p => Math.max(0, p - r.synced));
-    alert(`Synced: ${r.synced}, Failed: ${r.failed}`);
   };
 
   return (
-    <div style={{ paddingBottom: 100, background: '#F6F8FC', minHeight: '100vh' }}>
-      <ScreenHeader title="Offline Sync" showBack={false} />
-      <div style={{ padding: 20 }}>
+    <div className="screen">
+      <ScreenHeader title="Sync" showBack={false} />
+      <div className="screen-body">
         <div style={{
-          padding: 20, borderRadius: 14, textAlign: 'center', marginBottom: 16,
-          background: online ? '#D1FAE5' : '#FEF3C7',
+          padding: 20, borderRadius: 20, textAlign: 'center', marginBottom: 16,
+          background: online ? 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)' : 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+          boxShadow: online ? '0 8px 24px rgba(34,197,94,0.15)' : '0 8px 24px rgba(245,158,11,0.15)',
         }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
-            {online ? <Cloud size={32} color="#065F46" /> : <CloudOff size={32} color="#92400E" />}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
+            {online ? <Cloud size={36} color="#15803d" strokeWidth={1.8} /> : <CloudOff size={36} color="#92400e" strokeWidth={1.8} />}
           </div>
-          <h3 style={{ fontSize: 14, fontWeight: 700, color: online ? '#065F46' : '#92400E' }}>
-            {online ? 'Online Mode' : 'Offline Mode'}
-          </h3>
-          <p style={{ fontSize: 12, color: online ? '#065F46' : '#92400E', marginTop: 6, opacity: 0.85 }}>
-            {online
-              ? 'You are online. Data will sync automatically when available.'
-              : 'No internet connection. Data will sync automatically when a connection is available.'}
+          <h3 style={{ fontSize: 15, fontWeight: 800, color: online ? '#15803d' : '#92400e' }}>{online ? 'Online' : 'Offline Mode'}</h3>
+          <p style={{ fontSize: 12, color: online ? '#15803d' : '#92400e', marginTop: 6, opacity: 0.85, fontWeight: 500, lineHeight: 1.5 }}>
+            {online ? 'Connected. Your data will sync automatically.' : 'No internet. Data will sync when connection returns.'}
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
-          <div className="stat-card" style={{ flex: 1 }}>
-            <Cloud size={18} color="#F59E0B" style={{ marginBottom: 6 }} />
-            <div style={{ fontSize: 22, fontWeight: 700, color: '#F59E0B' }}>{pending}</div>
-            <div style={{ fontSize: 10, color: '#6B7280', marginTop: 2, fontWeight: 500 }}>Pending Sync</div>
+        <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+          <div style={{ flex: 1, background: 'white', borderRadius: 16, padding: 16, textAlign: 'center', boxShadow: '0 1px 3px rgba(15,23,42,0.04)' }}>
+            <Cloud size={20} color="#ea580c" style={{ margin: '0 auto 6px' }} />
+            <div style={{ fontSize: 26, fontWeight: 800, color: '#ea580c', letterSpacing: '-0.03em' }}>{pending}</div>
+            <div style={{ fontSize: 11, color: '#64748b', marginTop: 2, fontWeight: 600 }}>Pending Sync</div>
           </div>
-          <div className="stat-card" style={{ flex: 1 }}>
-            <CheckCircle2 size={18} color="#10B981" style={{ marginBottom: 6 }} />
-            <div style={{ fontSize: 22, fontWeight: 700, color: '#10B981' }}>{synced}</div>
-            <div style={{ fontSize: 10, color: '#6B7280', marginTop: 2, fontWeight: 500 }}>Synced</div>
+          <div style={{ flex: 1, background: 'white', borderRadius: 16, padding: 16, textAlign: 'center', boxShadow: '0 1px 3px rgba(15,23,42,0.04)' }}>
+            <CheckCircle2 size={20} color="#16a34a" style={{ margin: '0 auto 6px' }} />
+            <div style={{ fontSize: 26, fontWeight: 800, color: '#16a34a', letterSpacing: '-0.03em' }}>{synced}</div>
+            <div style={{ fontSize: 11, color: '#64748b', marginTop: 2, fontWeight: 600 }}>Synced</div>
           </div>
         </div>
 

@@ -8,22 +8,29 @@ export default function CameraScreen() {
   const canvasRef = useRef(null);
   const [stream, setStream] = useState(null);
   const [error, setError] = useState('');
+  const [ready, setReady] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    let activeStream = null;
     (async () => {
       try {
         const s = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment', width: 640, height: 480 }
+          video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } },
         });
-        if (videoRef.current) videoRef.current.srcObject = s;
+        activeStream = s;
+        if (videoRef.current) {
+          videoRef.current.srcObject = s;
+          videoRef.current.onloadedmetadata = () => setReady(true);
+        }
         setStream(s);
-      } catch (e) { setError(e.message); }
+      } catch (e) { setError(e.message || 'Camera access denied'); }
     })();
-    return () => stream?.getTracks().forEach(t => t.stop());
+    return () => { activeStream?.getTracks().forEach(t => t.stop()); };
   }, []);
 
   const capture = () => {
+    if (!videoRef.current || !ready) return;
     const c = canvasRef.current;
     c.width = 224; c.height = 224;
     c.getContext('2d').drawImage(videoRef.current, 0, 0, 224, 224);
@@ -32,47 +39,34 @@ export default function CameraScreen() {
   };
 
   return (
-    <div style={{ background: '#F6F8FC', minHeight: '100vh' }}>
+    <div className="screen">
       <ScreenHeader title="Capture Image" />
-      <div style={{ padding: 20 }}>
+      <div className="screen-body">
         {error ? (
-          <div style={{
-            padding: 20, background: '#FEE2E2', borderRadius: 12,
-            color: '#991B1B', fontSize: 13, display: 'flex', gap: 10,
-          }}>
+          <div style={{ padding: 20, background: '#fee2e2', borderRadius: 16, color: '#991b1b', fontSize: 13, display: 'flex', gap: 10, fontWeight: 500 }}>
             <AlertCircle size={18} style={{ flexShrink: 0 }} />
             <span>Camera error: {error}</span>
           </div>
         ) : (
           <>
-            <div style={{
-              position: 'relative', borderRadius: 16, overflow: 'hidden',
-              background: '#000', aspectRatio: '4/3',
-            }}>
-              <video ref={videoRef} autoPlay playsInline
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              <div style={{
-                position: 'absolute', inset: 0,
-                border: '3px dashed rgba(255,255,255,0.4)',
-                borderRadius: 16, margin: 20, pointerEvents: 'none',
-              }} />
+            <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', background: '#000', aspectRatio: '4/3', boxShadow: '0 8px 24px rgba(15,23,42,0.12)' }}>
+              <video ref={videoRef} autoPlay playsInline muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <div style={{ position: 'absolute', inset: 0, border: '3px dashed rgba(255,255,255,0.5)', borderRadius: 20, margin: 20, pointerEvents: 'none' }} />
             </div>
-            <p style={{ textAlign: 'center', fontSize: 11, color: '#6B7280', marginTop: 10, fontWeight: 500 }}>
-              Keep the phone steady
-            </p>
+            <p style={{ textAlign: 'center', fontSize: 12, color: '#64748b', marginTop: 12, fontWeight: 600 }}>Keep the phone steady</p>
 
-            <div style={{ marginTop: 16, padding: 16, background: 'white', borderRadius: 14 }}>
-              <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>Tips for good image:</p>
-              <ul style={{ fontSize: 12, color: '#6B7280', paddingLeft: 20, lineHeight: 1.9 }}>
+            <div style={{ marginTop: 14, padding: 14, background: 'white', borderRadius: 16, boxShadow: '0 1px 3px rgba(15,23,42,0.04)' }}>
+              <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8, color: '#0f172a' }}>Tips for a good image</p>
+              <ul style={{ fontSize: 12, color: '#64748b', paddingLeft: 20, lineHeight: 1.8, fontWeight: 500 }}>
                 <li>Keep proper distance (10-15 cm)</li>
-                <li>Good lighting (avoid flash)</li>
-                <li>Keep the eye steady</li>
+                <li>Ensure good lighting</li>
+                <li>Keep the subject steady</li>
                 <li>Avoid blur and reflections</li>
               </ul>
             </div>
 
-            <button onClick={capture} className="btn-primary" style={{ marginTop: 20 }}>
-              <Camera size={18} /> Capture Image
+            <button onClick={capture} className="btn-primary" disabled={!ready} style={{ marginTop: 16 }}>
+              <Camera size={18} /> {ready ? 'Capture Image' : 'Starting camera...'}
             </button>
           </>
         )}

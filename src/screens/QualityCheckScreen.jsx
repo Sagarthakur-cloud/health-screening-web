@@ -15,43 +15,44 @@ export default function QualityCheckScreen() {
     if (i) checkQuality(i).then(setQ);
   }, []);
 
-  if (!q) return (
-    <div style={{ background: '#F6F8FC', minHeight: '100vh' }}>
-      <ScreenHeader title="Image Quality Check" />
-      <div style={{ padding: 40, textAlign: 'center', color: '#6B7280', fontSize: 13 }}>
-        Analyzing quality...
+  if (!q) {
+    return (
+      <div className="screen">
+        <ScreenHeader title="Image Quality" />
+        <div className="screen-body" style={{ textAlign: 'center', color: '#64748b', fontSize: 13, fontWeight: 500, paddingTop: 40 }}>
+          Analyzing quality...
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 
   const good = q.status === 'good';
 
   return (
-    <div style={{ background: '#F6F8FC', minHeight: '100vh' }}>
-      <ScreenHeader title="Image Quality Check" />
-      <div style={{ padding: 20 }}>
-        {img && <img src={img} alt="captured" style={{ width: '100%', borderRadius: 16, marginBottom: 16 }} />}
+    <div className="screen">
+      <ScreenHeader title="Image Quality" />
+      <div className="screen-body">
+        {img && (
+          <img src={img} alt="captured"
+            style={{ width: '100%', borderRadius: 20, marginBottom: 16, boxShadow: '0 8px 24px rgba(15,23,42,0.08)' }} />
+        )}
 
         <div style={{
-          padding: 16, borderRadius: 14,
-          background: good ? '#D1FAE5' : '#FEE2E2',
-          border: `1.5px solid ${good ? '#10B981' : '#EF4444'}`,
+          padding: 16, borderRadius: 16,
+          background: good ? '#dcfce7' : '#fee2e2',
+          border: `1.5px solid ${good ? '#22c55e' : '#ef4444'}`,
           marginBottom: 16,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {good ? <CheckCircle2 size={20} color="#065F46" /> : <AlertTriangle size={20} color="#991B1B" />}
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: good ? '#065F46' : '#991B1B', flex: 1 }}>
+            {good ? <CheckCircle2 size={22} color="#15803d" /> : <AlertTriangle size={22} color="#991b1b" />}
+            <h3 style={{ fontSize: 15, fontWeight: 800, flex: 1, color: good ? '#15803d' : '#991b1b' }}>
               {good ? 'Good Quality' : 'Poor Quality'}
             </h3>
-            <span style={{ fontSize: 12, color: good ? '#065F46' : '#991B1B', fontWeight: 600 }}>
+            <span style={{ fontSize: 13, color: good ? '#15803d' : '#991b1b', fontWeight: 700 }}>
               {q.score}/100
             </span>
           </div>
-          {!good && (
-            <p style={{ fontSize: 12, marginTop: 10, color: '#991B1B' }}>
-              {q.reason}
-            </p>
-          )}
+          {!good && <p style={{ fontSize: 12, marginTop: 10, color: '#991b1b', fontWeight: 500 }}>{q.reason}</p>}
         </div>
 
         <button className="btn-secondary" onClick={() => navigate('/camera')} style={{ marginBottom: 10 }}>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, Info } from 'lucide-react';
+import { AlertTriangle, Info, Check } from 'lucide-react';
 import ScreenHeader from '../components/ScreenHeader';
 import { saveResult } from '../services/dbService';
 
@@ -20,11 +20,12 @@ export default function ResultScreen() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    setR(JSON.parse(sessionStorage.getItem('result') || '[]'));
+    const stored = sessionStorage.getItem('result');
+    setR(stored ? JSON.parse(stored) : null);
     setImg(sessionStorage.getItem('captured'));
   }, []);
 
-  if (!r || !r.length) return <div style={{ padding: 40 }}>Loading...</div>;
+  if (!r || !r.length) return <div className="screen" style={{ padding: 40, textAlign: 'center' }}><p>Loading result...</p></div>;
 
   const max = r.indexOf(Math.max(...r));
   const conf = (r[max] * 100).toFixed(0);
@@ -34,20 +35,21 @@ export default function ResultScreen() {
     const p = JSON.parse(sessionStorage.getItem('patient') || '{}');
     await saveResult({
       id: Date.now().toString(),
-      patientId: p.patientId, patientName: p.name,
+      patientId: p.patientId || 'Unknown',
+      patientName: p.name || 'Unknown',
       severity: max, label: LABELS[max],
       confidence: parseFloat(conf),
-      date: new Date().toISOString(), syncStatus: 'pending',
+      date: new Date().toISOString(),
+      syncStatus: 'pending',
     });
     setSaved(true);
   };
 
   return (
-    <div style={{ background: '#F6F8FC', minHeight: '100vh', paddingBottom: 20 }}>
+    <div className="screen">
       <ScreenHeader title="Screening Result" />
-      <div style={{ padding: 20 }}>
-        {/* Heatmap overlay */}
-        <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', marginBottom: 16 }}>
+      <div className="screen-body">
+        <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', marginBottom: 16, boxShadow: '0 8px 24px rgba(15,23,42,0.1)' }}>
           {img && <img src={img} alt="result" style={{ width: '100%', display: 'block' }} />}
           {high && (
             <div style={{
@@ -56,43 +58,32 @@ export default function ResultScreen() {
               mixBlendMode: 'multiply',
             }} />
           )}
-          <div style={{
-            position: 'absolute', top: 12, right: 12,
-            background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(8px)',
-            padding: '4px 10px', borderRadius: 999, fontSize: 10,
-            fontWeight: 600, color: '#374151',
-          }}>
+          <div style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(8px)', padding: '5px 12px', borderRadius: 999, fontSize: 10, fontWeight: 700, color: '#475569' }}>
             Heatmap
           </div>
         </div>
 
-        {/* Result Card */}
-        <div style={{
-          padding: 16, borderRadius: 14,
-          background: high ? '#FEE2E2' : '#FEF3C7',
-          marginBottom: 16,
-        }}>
+        <div style={{ padding: 18, borderRadius: 16, background: high ? '#fee2e2' : '#fef3c7', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {high ? <AlertTriangle size={20} color="#991B1B" /> : <Info size={20} color="#92400E" />}
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: high ? '#991B1B' : '#92400E' }}>
+            {high ? <AlertTriangle size={22} color="#991b1b" /> : <Info size={22} color="#92400e" />}
+            <h3 style={{ fontSize: 17, fontWeight: 800, color: high ? '#991b1b' : '#92400e', letterSpacing: '-0.01em' }}>
               {LABELS[max]}
             </h3>
           </div>
-          <p style={{ fontSize: 13, marginTop: 12, color: high ? '#991B1B' : '#92400E' }}>
-            <strong>Confidence Score:</strong> {conf}%
+          <p style={{ fontSize: 13, marginTop: 12, color: high ? '#991b1b' : '#92400e', fontWeight: 600 }}>
+            Confidence Score: <strong>{conf}%</strong>
           </p>
-          <p style={{ fontSize: 13, marginTop: 8, color: high ? '#991B1B' : '#92400E' }}>
+          <p style={{ fontSize: 13, marginTop: 8, color: high ? '#991b1b' : '#92400e', fontWeight: 500, lineHeight: 1.5 }}>
             <strong>What this means:</strong> {DESC[max]}
           </p>
         </div>
 
-        {/* Actions */}
         <div style={{ display: 'flex', gap: 10 }}>
           <button className="btn-secondary" onClick={save} disabled={saved}>
-            {saved ? 'Saved ✓' : 'Save Result'}
+            {saved ? <><Check size={16} /> Saved</> : 'Save Result'}
           </button>
           <button className="btn-primary" onClick={() => navigate(high ? '/referral' : '/dashboard')}>
-            {high ? 'Refer to Specialist' : 'Done'}
+            {high ? 'Refer Specialist' : 'Done'}
           </button>
         </div>
       </div>

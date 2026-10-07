@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginScreen from './screens/LoginScreen';
+import SignupScreen from './screens/SignupScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import PatientRegistration from './screens/PatientRegistration';
 import ScreeningSelection from './screens/ScreeningSelection';
@@ -18,6 +19,7 @@ export default function App() {
       <div className="app-container">
         <Routes>
           <Route path="/" element={<LoginScreen />} />
+          <Route path="/signup" element={<SignupScreen />} />
           <Route path="/dashboard" element={<DashboardScreen />} />
           <Route path="/register" element={<PatientRegistration />} />
           <Route path="/select-screening" element={<ScreeningSelection />} />

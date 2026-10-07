@@ -1,4 +1,4 @@
-import { getPendingSync, getDB } from './dbService';
+import { getPendingSync, getDB, markSynced } from './dbService';
 
 export async function syncPending() {
   const queue = await getPendingSync();
@@ -9,7 +9,6 @@ export async function syncPending() {
 
   for (const record of queue) {
     try {
-      // Yahan apna Django/Vercel API URL daalo
       const res = await fetch('https://your-api.com/api/sync/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -17,13 +16,10 @@ export async function syncPending() {
       });
       if (res.ok) {
         await db.delete('syncQueue', record.id);
+        await markSynced(record.id);
         synced++;
-      } else {
-        failed++;
-      }
-    } catch (e) {
-      failed++;
-    }
+      } else failed++;
+    } catch (e) { failed++; }
   }
   return { synced, failed };
 }

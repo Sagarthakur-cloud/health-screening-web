@@ -13,19 +13,19 @@ export default defineConfig({
       manifest: {
         name: 'Dr. Screen - Field Screening App',
         short_name: 'Dr. Screen',
-        theme_color: '#0F52BA',
-        background_color: '#F6F8FC',
+        theme_color: '#2563eb',
+        background_color: '#f8fafc',
         display: 'standalone',
         orientation: 'portrait',
         icons: [
           { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icon-512.png', sizes: '512x512', type: 'image/png' }
-        ]
+          { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+        ],
       },
       workbox: {
-        maximumFileSizeToCacheInBytes: 20 * 1024 * 1024,
-        globPatterns: ['**/*.{js,css,html,tflite,wasm,png}']
-      }
-    })
-  ]
+        maximumFileSizeToCacheInBytes: 30 * 1024 * 1024,
+        globPatterns: ['**/*.{js,css,html,tflite,wasm,png,svg}'],
+      },
+    }),
+  ],
 });

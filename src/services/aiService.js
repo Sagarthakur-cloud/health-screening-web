@@ -6,28 +6,22 @@ export async function loadModel() {
   if (model) return model;
   try {
     await loadLiteRt('/wasm/');
-    model = await loadAndCompile('/models/dr_model.tflite', {
-      accelerator: 'webgpu'
-    });
+    model = await loadAndCompile('/models/dr_model.tflite', { accelerator: 'webgpu' });
   } catch (e) {
-    console.warn('WebGPU failed, trying WASM:', e);
-    model = await loadAndCompile('/models/dr_model.tflite', {
-      accelerator: 'wasm'
-    });
+    console.warn('WebGPU failed, using WASM:', e);
+    model = await loadAndCompile('/models/dr_model.tflite', { accelerator: 'wasm' });
   }
   return model;
 }
 
 export async function runInference(imageDataUrl) {
   const m = await loadModel();
-
   const img = new Image();
   img.src = imageDataUrl;
   await img.decode();
 
   const canvas = document.createElement('canvas');
-  canvas.width = 224;
-  canvas.height = 224;
+  canvas.width = 224; canvas.height = 224;
   const ctx = canvas.getContext('2d');
   ctx.drawImage(img, 0, 0, 224, 224);
 
@@ -44,7 +38,9 @@ export async function runInference(imageDataUrl) {
   return Array.from(output.data);
 }
 
-// Dummy result for testing (jab tak real model nahi hai)
 export function dummyInference() {
-  return [0.05, 0.15, 0.65, 0.10, 0.05];
+  const random = Math.random();
+  if (random < 0.6) return [0.7, 0.15, 0.10, 0.03, 0.02];
+  if (random < 0.8) return [0.1, 0.5, 0.25, 0.10, 0.05];
+  return [0.05, 0.10, 0.55, 0.20, 0.10];
 }

@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, ClipboardList, RefreshCw, User, UserPlus } from 'lucide-react';
+import { Home, UserPlus, ClipboardList, RefreshCw, User } from 'lucide-react';
 
 export default function BottomNav() {
   const navigate = useNavigate();
@@ -18,27 +18,16 @@ export default function BottomNav() {
       {tabs.map(({ path, label, Icon }) => {
         const active = pathname === path;
         return (
-          <button
-            key={path}
-            onClick={() => navigate(path)}
+          <button key={path} onClick={() => navigate(path)}
             style={{
-              background: 'none',
-              border: 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 4,
-              color: active ? '#0F52BA' : '#9CA3AF',
-              fontSize: 10,
-              fontWeight: 500,
-              minWidth: 56,
-              cursor: 'pointer',
-              padding: 4,
-              transition: 'color 0.2s',
-              fontFamily: 'inherit',
-            }}
-          >
-            <Icon size={20} strokeWidth={active ? 2.5 : 2} />
+              background: 'none', border: 'none',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+              color: active ? '#2563eb' : '#94a3b8',
+              fontSize: 10, fontWeight: 600, minWidth: 56,
+              cursor: 'pointer', padding: '4px 8px',
+              fontFamily: 'inherit', transition: 'color 0.2s',
+            }}>
+            <Icon size={22} strokeWidth={active ? 2.5 : 2} />
             {label}
           </button>
         );

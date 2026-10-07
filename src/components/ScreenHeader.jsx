@@ -3,11 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 
 export default function ScreenHeader({ title, showBack = true, backTo, rightAction }) {
   const navigate = useNavigate();
-
-  const handleBack = () => {
-    if (backTo) navigate(backTo);
-    else navigate(-1);
-  };
+  const handleBack = () => { if (backTo) navigate(backTo); else navigate(-1); };
 
   return (
     <div className="screen-header">
@@ -15,11 +11,9 @@ export default function ScreenHeader({ title, showBack = true, backTo, rightActi
         <button className="back-btn" onClick={handleBack} aria-label="Go back">
           <ArrowLeft size={20} strokeWidth={2.2} />
         </button>
-      ) : (
-        <div style={{ width: 36 }} />
-      )}
+      ) : <div style={{ width: 36 }} />}
       <h1 className="screen-title">{title}</h1>
-      <div style={{ width: 36 }}>{rightAction}</div>
+      <div style={{ width: 36, display: 'flex', justifyContent: 'flex-end' }}>{rightAction}</div>
     </div>
   );
 }
